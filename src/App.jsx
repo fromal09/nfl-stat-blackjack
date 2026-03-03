@@ -170,6 +170,23 @@ html,body,#root{min-height:100vh;background:#050e08}
 .card-row.deal-in{animation:dealIn .32s cubic-bezier(.22,1,.36,1) forwards}
 .card-placeholder{height:28px;border-radius:4px;background:rgba(212,175,55,.04);border:1px dashed rgba(212,175,55,.1)}
 
+/* Deal starting hand button */
+.deal-hand-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px 20px 8px;gap:10px;
+}
+.deal-hand-btn{
+  padding:15px 40px;border-radius:8px;
+  border:2px solid #d4af37;
+  background:linear-gradient(135deg,#d4af37,#b8922a);
+  color:#091510;
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.deal-hand-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(212,175,55,.45)}
+.deal-hand-sub{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(232,223,192,.35)}
+
 .inp-area{max-width:520px;margin:0 auto;position:relative}
 .turn-ind{text-align:center;margin-bottom:12px}
 .turn-nm{font-family:'Playfair Display',serif;font-size:19px;color:#d4af37}
@@ -421,8 +438,7 @@ export default function App() {
   const [phase, setPhase] = useState("setup");
   const [numPlayers, setNumPlayers] = useState(2);
   const [playerNames, setPlayerNames] = useState(["", "", "", ""]);
- const defaultCat = new URLSearchParams(window.location.search).get('cat') || null;
-const [selectedCat, setSelectedCat] = useState(defaultCat);
+  const [selectedCat, setSelectedCat] = useState(null);
   const [gameState, setGameState] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -430,6 +446,7 @@ const [selectedCat, setSelectedCat] = useState(defaultCat);
   const [showSugg, setShowSugg] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [pendingCard, setPendingCard] = useState(null);
+  const [handDealt, setHandDealt] = useState(false);
   // cardPhase: null | "deal" | "flipped" | "exiting"
   const [cardPhase, setCardPhase] = useState(null);
   const inputRef = useRef(null);
@@ -483,18 +500,20 @@ const [selectedCat, setSelectedCat] = useState(defaultCat);
     });
 
     setGameState({ cat, players, currentPlayer: 0, usedPool: globalUsed });
+    setHandDealt(false);
     setPhase("playing");
     setInputValue(""); setErrorMsg(""); setSuggestions([]); setShowSugg(false);
+  };
 
-    // Deal cards one at a time: round-robin across players (card 0 p0, card 0 p1, card 0 p2, card 1 p0...)
-    const dealOrder = [];
+  const dealStartingHand = () => {
+    const numP = gameState?.players.length || 0;
     const handSize = 2;
+    const dealOrder = [];
     for (let cardIdx = 0; cardIdx < handSize; cardIdx++) {
-      for (let pIdx = 0; pIdx < names.length; pIdx++) {
+      for (let pIdx = 0; pIdx < numP; pIdx++) {
         dealOrder.push({ pIdx, cardIdx });
       }
     }
-
     dealOrder.forEach(({ pIdx, cardIdx }, i) => {
       setTimeout(() => {
         setGameState((prev) => {
@@ -507,10 +526,10 @@ const [selectedCat, setSelectedCat] = useState(defaultCat);
           });
           return { ...prev, players: newPlayers };
         });
-      }, i * 180 + 300); // 180ms between each card, 300ms initial delay
+      }, i * 180 + 80);
     });
-
-    const focusDelay = dealOrder.length * 180 + 500;
+    setHandDealt(true);
+    const focusDelay = dealOrder.length * 180 + 300;
     setTimeout(() => inputRef.current?.focus(), focusDelay);
   };
 
@@ -730,7 +749,14 @@ const [selectedCat, setSelectedCat] = useState(defaultCat);
               </div>
             ))}
           </div>
-          {cp && cp.status === "active" && (
+          {!handDealt ? (
+            <div className="deal-hand-wrap">
+              <button className="deal-hand-btn" onClick={dealStartingHand}>
+                Deal Starting Hand
+              </button>
+              <div className="deal-hand-sub">{numPlayers} player{numPlayers > 1 ? "s" : ""} · {cat.label}</div>
+            </div>
+          ) : cp && cp.status === "active" && (
             <div className="inp-area">
               <div className="turn-ind">
                 <div className="turn-nm">{cp.name}</div>
@@ -793,7 +819,7 @@ const [selectedCat, setSelectedCat] = useState(defaultCat);
               <div className={`res-total${p.status === "bust" ? " bust" : ""}`}>{p.status === "bust" ? "BUST" : fmt(p.total)}</div>
             </div>
           ))}
-          <button className="again-btn" onClick={() => { setPhase("setup"); setSelectedCat(null); setGameState(null); setInputValue(""); setErrorMsg(""); setPendingCard(null); setCardPhase(null); }}>New Game</button>
+          <button className="again-btn" onClick={() => { setPhase("setup"); setSelectedCat(null); setGameState(null); setInputValue(""); setErrorMsg(""); setPendingCard(null); setCardPhase(null); setHandDealt(false); }}>New Game</button>
         </div>
       </div></>
     );
