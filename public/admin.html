@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NFL Stat Blackjack — Embed</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Barlow+Condensed:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#d4af37;
+  --gold-dim:rgba(212,175,55,.15);
+  --bg:#060e08;
+  --bg2:#0c1a0f;
+  --bg3:#111f14;
+  --border:rgba(212,175,55,.13);
+  --text:#e8dfc0;
+  --text-dim:rgba(232,223,192,.42);
+  --success:#6fc876;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.008) 2px,rgba(255,255,255,.008) 4px)}
+
+.wrap{max-width:680px;margin:0 auto;padding:48px 24px 80px;position:relative;z-index:1}
+
+.hdr{margin-bottom:40px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.eyebrow{font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);opacity:.55;margin-bottom:10px}
+.title{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--gold);letter-spacing:1px;line-height:1;text-shadow:0 0 40px rgba(212,175,55,.3)}
+.title em{color:var(--text);font-style:normal}
+.subtitle{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);margin-top:7px}
+
+.group{margin-bottom:28px}
+.group-lbl{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:block}
+
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cat-btn{
+  padding:9px 6px;border-radius:6px;
+  border:1px solid var(--border);
+  background:rgba(212,175,55,.02);
+  color:var(--text);cursor:pointer;
+  transition:all .15s;text-align:center;
+  font-family:'Barlow Condensed',sans-serif;
+}
+.cat-btn:hover{border-color:rgba(212,175,55,.35);background:rgba(212,175,55,.06)}
+.cat-btn.on{border-color:var(--gold);background:rgba(212,175,55,.12);box-shadow:0 0 12px rgba(212,175,55,.12)}
+.cat-nm{font-size:12px;font-weight:700;letter-spacing:.3px;line-height:1.2}
+.cat-tgt{font-size:9px;color:var(--gold);margin-top:3px;opacity:.7;letter-spacing:.5px}
+
+.dim-row{display:flex;gap:10px}
+.dim-field{display:flex;flex-direction:column;gap:6px;flex:1}
+.inp{
+  width:100%;padding:10px 13px;
+  border-radius:6px;border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  color:var(--text);font-family:'Barlow Condensed',sans-serif;
+  font-size:15px;letter-spacing:1px;outline:none;
+  transition:border-color .18s;
+}
+.inp:focus{border-color:var(--gold)}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pre-btn{
+  padding:5px 12px;border-radius:5px;
+  font-size:10px;letter-spacing:1px;text-transform:uppercase;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-dim);cursor:pointer;
+  transition:all .15s;font-family:'Barlow Condensed',sans-serif;
+}
+.pre-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+.code-wrap{border-radius:8px;border:1px solid var(--border);background:var(--bg2);overflow:hidden}
+.code-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg3);
+}
+.code-top-lbl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim)}
+.copy-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 14px;border-radius:5px;
+  border:1px solid var(--gold);background:rgba(212,175,55,.07);
+  color:var(--gold);cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  transition:all .15s;
+}
+.copy-btn:hover{background:rgba(212,175,55,.16)}
+.copy-btn.ok{border-color:var(--success);color:var(--success);background:rgba(111,200,118,.07)}
+.code-body{
+  padding:16px 18px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;line-height:1.8;
+  color:#a8c97f;
+  overflow-x:auto;
+  white-space:pre;
+  user-select:all;
+  cursor:text;
+}
+
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--bg3);border:1px solid var(--gold);
+  border-radius:7px;padding:9px 22px;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  opacity:0;transition:all .22s;pointer-events:none;z-index:99;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="eyebrow">FanSided Games · Embed Tool</div>
+    <div class="title">NFL <em>STAT</em> BLACKJACK</div>
+    <div class="subtitle">Configure &amp; copy iframe code</div>
+  </div>
+
+  <div class="group">
+    <span class="group-lbl">Default Stat Category</span>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+
+  <div class="group">
+    <span class="group-lbl">Dimensions</span>
+    <div class="dim-row">
+      <div class="dim-field">
+        <span class="group-lbl">Width</span>
+        <input class="inp" id="wInp" value="100%" />
+      </div>
+      <div class="dim-field">
+        <span class="group-lbl">Height (px)</span>
+        <input class="inp" id="hInp" type="number" value="700" min="400" max="1200" />
+      </div>
+    </div>
+    <div class="presets">
+      <button class="pre-btn" onclick="setDims('100%',700)">Full Width</button>
+      <button class="pre-btn" onclick="setDims('100%',820)">Tall</button>
+      <button class="pre-btn" onclick="setDims('640',700)">Inset / Sidebar</button>
+      <button class="pre-btn" onclick="setDims('100%',600)">Compact</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <span class="group-lbl">Embed Code</span>
+    <div class="code-wrap">
+      <div class="code-top">
+        <span class="code-top-lbl">iframe · HTML</span>
+        <button class="copy-btn" id="copyBtn" onclick="copyCode()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="code-body" id="codeOut"></div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+const BASE_URL = 'https://nfl-stat-blackjack.vercel.app';
+
+const CATS = [
+  { id:'pass_td',    label:'Passing TDs',     tgt:'500' },
+  { id:'pass_yds',   label:'Passing Yards',   tgt:'75,000' },
+  { id:'rush_td',    label:'Rushing TDs',     tgt:'175' },
+  { id:'rush_yds',   label:'Rushing Yards',   tgt:'15,000' },
+  { id:'rec_td',     label:'Receiving TDs',   tgt:'175' },
+  { id:'rec_yds',    label:'Receiving Yards', tgt:'18,000' },
+  { id:'receptions', label:'Receptions',      tgt:'1,500' },
+  { id:'sacks',      label:'Sacks',           tgt:'200' },
+];
+
+let cat = 'pass_td', w = '100%', h = '700';
+
+function renderCats() {
+  document.getElementById('catGrid').innerHTML = CATS.map(c => `
+    <button class="cat-btn${c.id===cat?' on':''}" onclick="selCat('${c.id}')">
+      <div class="cat-nm">${c.label}</div>
+      <div class="cat-tgt">${c.tgt}</div>
+    </button>`).join('');
+}
+
+function selCat(id) { cat = id; renderCats(); render(); }
+
+function setDims(nw, nh) {
+  w = String(nw); h = String(nh);
+  document.getElementById('wInp').value = w;
+  document.getElementById('hInp').value = h;
+  render();
+}
+
+function buildCode() {
+  const url = `${BASE_URL}?cat=${cat}`;
+  const fw = w.includes('%') ? w : `${w}px`;
+  const fh = `${h}px`;
+  return `<iframe\n  src="${url}"\n  width="${fw}"\n  height="${fh}"\n  style="border:none;display:block;max-width:100%"\n  title="NFL Stat Blackjack · FanSided"\n  loading="lazy"\n  allowfullscreen\n></iframe>`;
+}
+
+function render() {
+  document.getElementById('codeOut').textContent = buildCode();
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(buildCode()).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('ok');
+    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied`;
+    setTimeout(() => {
+      btn.classList.remove('ok');
+      btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+    }, 2200);
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  });
+}
+
+document.getElementById('wInp').addEventListener('input', e => { w = e.target.value.trim()||'100%'; render(); });
+document.getElementById('hInp').addEventListener('input', e => { h = e.target.value.trim()||'700'; render(); });
+
+renderCats();
+render();
+</script>
+</body>
+</html>
