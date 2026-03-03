@@ -724,10 +724,12 @@ export default function App() {
                 <div className={`p-status s-${p.status}`}>
                   {p.status === "active" ? (i === cpIdx ? "▶ Your Turn" : "Waiting") : p.status === "stood" ? "Standing" : p.status === "bust" ? "BUST" : "🃏 BLACKJACK!"}
                 </div>
-                <div className={`p-total ${totalCls(p, cat.target)}`}>{fmt(p.total)}</div>
-                <div className="prog-bg">
-                  <div className="prog-fill" style={{ width: `${Math.min(p.total / cat.target * 100, 100)}%`, background: barColor(p, cat.target) }} />
-                </div>
+                {handDealt && <>
+                  <div className={`p-total ${totalCls(p, cat.target)}`}>{fmt(p.total)}</div>
+                  <div className="prog-bg">
+                    <div className="prog-fill" style={{ width: `${Math.min(p.total / cat.target * 100, 100)}%`, background: barColor(p, cat.target) }} />
+                  </div>
+                </>}
                 <div className="cards-list">
                   {p.cards.map((c, ci) => {
                     if (c.hidden) return <div key={ci} className="card-row card-placeholder" />;
